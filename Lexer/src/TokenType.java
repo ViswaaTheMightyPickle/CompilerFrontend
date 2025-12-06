@@ -1,0 +1,14 @@
+public enum TokenType
+{
+    IDENTIFIER,
+    KEYWORD,
+    NUMERIC_LITERAL,
+    CHARACTER_LITERAL,
+    STRING_LITERAL,
+
+    OPERATOR,
+
+    PUNCTUATION,
+
+    EOF
+}
