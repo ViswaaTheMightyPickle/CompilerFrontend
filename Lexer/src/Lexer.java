@@ -50,6 +50,20 @@ public class Lexer {
     boolean isIdentifierStart(char ch) {
         return ch == '_';
     }
+    
+    boolean isOperatorStart(char ch) {
+        return  ch == '+'
+                || ch == '-'
+                || ch == '*'
+                || ch == '/'
+                || ch == '%'
+                || ch == '^'
+                || ch == '>'
+                || ch == '|'
+                || ch == '<'
+                || ch == '='
+                || ch == '.';
+    }
 
     boolean isWhitespace(char ch) {
         return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
@@ -103,7 +117,6 @@ public class Lexer {
                 next();
             }
         }
-
 
         boolean seenExponent = false;
 
@@ -166,8 +179,61 @@ public class Lexer {
         return new Token(TokenType.NUMERIC_LITERAL, text, line, column);
     }
 
+    private static final HashSet<Character> DOUBLE_OPERATORS = new HashSet<>();
+    static {
+        DOUBLE_OPERATORS.add('<');
+        DOUBLE_OPERATORS.add('>');
+        DOUBLE_OPERATORS.add('+');
+        DOUBLE_OPERATORS.add('-');
+    }
+
     Token readOperator(){
-        //not implemented
-        return null;
+        int start = index;
+        String op = "";
+
+        boolean condition = !isAtEnd() && isOperatorStart(peek());
+
+        if(condition) {
+            op += next();
+        }
+
+        if(!isAtEnd() && isOperatorStart(peek())) {
+            if(DOUBLE_OPERATORS.contains(op.charAt(0))) {
+                if(!isAtEnd() && isOperatorStart(peek())) {
+                    switch(op.charAt(0)) {
+                        case '<', '-' -> {
+                            switch(peek())
+                            {
+                                case '-', '=' -> op += next();
+                                default -> throw new RuntimeException("Invalid double operator at: " + line + ", " + column);
+                            }
+                        }
+
+                        case '>' -> {
+                            if (peek() == '=') {
+                                op += next();
+                            } else {
+                                throw new RuntimeException("Invalid double operator at: " + line + ", " + column);
+                            }
+                        }
+
+                        case '+' -> {
+                            switch(peek())
+                            {
+                                case '+', '=' -> op += next();
+                                default -> throw new RuntimeException("Invalid double operator at: " + line + ", " + column);
+                            }
+                        }
+                    }
+                }
+            }
+            else{
+                throw new RuntimeException("Invalid double operator at: " + line + ", " + column);
+            }
+        }
+
+        if(op.equals("=")) throw new RuntimeException("Invalid '=' operator at: " + line + ", " + column);
+
+        return new Token(TokenType.OPERATOR, op, line, column);
     }
 }
