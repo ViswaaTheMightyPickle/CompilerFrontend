@@ -1,6 +1,5 @@
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Lexer {
@@ -14,7 +13,7 @@ public class Lexer {
     private int line = 1;
     private int column = 1;
 
-    private static Set<String> Keywords = new HashSet<String>();
+    private static final Set<String> Keywords = new HashSet<>();
     static {
         String[] words = {
                 "num", "dec", "character", "null", "bool",
@@ -27,17 +26,6 @@ public class Lexer {
         Keywords.addAll(Arrays.asList(words));
     }
 
-//    private static Set<Character> Numbers = new HashSet<Character>();
-//    static {
-//        Character[] numbers = {
-//                '0', '1', '2', '3', '4', '5', '6', '7',
-//                '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
-//                '.', 'e', 'x', 'o'
-//        };
-//
-//        Numbers.addAll(Arrays.asList(numbers));
-//    }
-
     char peek() {
         if (index >= input.length()) return '\0';
         return input.charAt(index);
@@ -49,11 +37,6 @@ public class Lexer {
         if (ch == '\n') {line++; column = 1;}
         else column++;
         return ch;
-    }
-
-    char peekPrevious()
-    {
-        return input.charAt(index-1);
     }
 
     boolean isDigit(char ch) {
@@ -103,60 +86,88 @@ public class Lexer {
     }
 
     Token readNumber(){
-//        int start = index;
-//
-//        next();
-//
-//        while(!isAtEnd()) {
-//            if(isDigit(peek())) {
-//                next();
-//            }
-//            else if(peek() == '.') {
-//                next();
-//            }
-//            else if(peek() == 'e' || peek() == 'E') {
-//                next();
-//            }
-//            else
-//                break;
-//        }
-//
-//        String text = input.substring(start, index);
-//
-//        return new Token(TokenType.NUMERIC_LITERAL, text, line, column);
+        int start = index;
+
+        while(!isAtEnd() && isDigit(peek())) {
+            next();
+        } //integeral part
+
+        boolean seenDecimal = false;
+
+        if(!isAtEnd() && peek() == '.'){
+            seenDecimal = true;
+            next();
+            if(!isDigit(peek())) throw new RuntimeException("No number followed after the decimal declaration at: " + line + ", " + column);
+
+            while(!isAtEnd() && isDigit(peek())) {
+                next();
+            }
+        }
+
+
+        boolean seenExponent = false;
+
+        if (!isAtEnd() && (peek() == 'e' || peek() == 'E')){
+            seenExponent = true;
+            next();
+        }
+
+        if(seenExponent) {
+            if(!isAtEnd() && (peek() == '+' || peek() == '-')){
+                next();
+            }
+
+            if(!isAtEnd() && (isDigit(peek()))){
+                next();
+                while(!isAtEnd() && isDigit(peek())) {
+                    next();
+                }
+            }
+            else{
+                throw new RuntimeException("No number followed after the exponent declaration at: " + line + ", " + column);
+            }
+        }
+
+        String text = input.substring(start, index);
+
+        int decimalCounter = 0;
+        for(int i = 0; i < text.length(); i++){
+            char ch = text.charAt(i);
+            if(ch == '.') decimalCounter++;
+        }
+
+        if(decimalCounter > 1){
+            throw new RuntimeException("Too many decimal declarations in one statement at: " + line + ", " + column);
+        }
+
+        if(text.charAt(0) == '.'){
+            if(text.length() == 1 || !isDigit(text.charAt(1))){
+                throw new RuntimeException("Invalid decimal declaration at: " + line + ", " + column);
+            }
+            text = "0" + text;
+        }
+
+        int exponentCounter = 0;
+        for(int i = 0; i < text.length(); i++){
+            char ch = text.charAt(i);
+            if(ch == 'e' || ch == 'E') exponentCounter++;
+        }
+
+        if(exponentCounter > 1){
+            throw new RuntimeException("Too many exponent declarations in one statement at: " + line + ", " + column);
+        }
+
+        if(!seenExponent){
+            if(text.contains("+") || text.contains("-")){
+                throw new RuntimeException("Invalid numerical declaration at: " + line + ", " + column);
+            }
+        }
+
+        return new Token(TokenType.NUMERIC_LITERAL, text, line, column);
     }
 
     Token readOperator(){
-//        int start = index;
-//
-//        switch(peek()) {
-//            case '+', '-', '*', '/', '^', '%':
-//            {
-//                return new Token(TokenType.OPERATOR, Character.toString(peek()), line, column);
-//            }
-//            default:
-//            {
-//                if(peek() == '<'){
-//                    next();
-//                    if(peek() == '-' || peek() == '='){
-//                        next();
-//                        String text = input.substring(start, index);
-//                        return new Token(TokenType.OPERATOR, text, line, column);
-//                    }
-//                }
-//
-//                if(peek() == '>'){
-//                    next();
-//                    if(peek() == '='){
-//                        next();
-//                        String text = input.substring(start, index);
-//                        return new Token(TokenType.OPERATOR, text, line, column);
-//                    }
-//                }
-//            }
-//        }
-//        return null;
+        //not implemented
+        return null;
     }
-
-
 }
