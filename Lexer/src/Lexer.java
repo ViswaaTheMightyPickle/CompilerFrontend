@@ -27,16 +27,16 @@ public class Lexer {
         Keywords.addAll(Arrays.asList(words));
     }
 
-    private static Set<Character> Numbers = new HashSet<Character>();
-    static {
-        Character[] numbers = {
-                '0', '1', '2', '3', '4', '5', '6', '7',
-                '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
-                '.', 'e', 'x', 'o'
-        };
-
-        Numbers.addAll(Arrays.asList(numbers));
-    }
+//    private static Set<Character> Numbers = new HashSet<Character>();
+//    static {
+//        Character[] numbers = {
+//                '0', '1', '2', '3', '4', '5', '6', '7',
+//                '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+//                '.', 'e', 'x', 'o'
+//        };
+//
+//        Numbers.addAll(Arrays.asList(numbers));
+//    }
 
     char peek() {
         if (index >= input.length()) return '\0';
