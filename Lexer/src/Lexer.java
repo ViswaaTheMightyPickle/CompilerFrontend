@@ -116,6 +116,21 @@ public class Lexer {
         else throw new RuntimeException("Punctuation token declared empty.");
     }
 
+    void skipComment()
+    {
+        next();
+
+        while(!isAtEnd() && !isComment(peek())) {
+            next();
+        }
+
+        if(isAtEnd()) {
+            throw new RuntimeException("Comment not terminated.");
+        }
+
+        next();
+    }
+
     Token readIdentifier() {
         int start = index;
         next();
