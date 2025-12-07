@@ -65,6 +65,29 @@ public class Lexer {
                 || ch == '.';
     }
 
+    private static final HashSet<Character> Punctuations = new HashSet<>();
+    static {
+        Character[] punctuations = {
+                '(',
+                ')',
+                '[',
+                ']',
+                '{',
+                '}',
+                ';',
+                ','
+        };
+        Punctuations.addAll(Arrays.asList(punctuations));
+    }
+
+    boolean isPunctuation(char ch) {
+        return Punctuations.contains(ch);
+    }
+
+    boolean isComment(char ch) {
+        return '~' == ch;
+    }
+
     boolean isWhitespace(char ch) {
         return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
     }
@@ -82,6 +105,15 @@ public class Lexer {
         while(!isAtEnd() && isWhitespace(peek())) {
             next();
         }
+    }
+
+    Token readPunctuation() {
+        String text = "";
+        if(!isAtEnd() && isPunctuation(peek())) {
+            text += next();
+        }
+        if(!text.isEmpty()) return new Token(TokenType.PUNCTUATION, text, line, column);
+        else throw new RuntimeException("Punctuation token declared empty.");
     }
 
     Token readIdentifier() {
